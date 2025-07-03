@@ -1,570 +1,106 @@
 # Universal Proxy Server
 
-A modular, high-performance proxy server with support for multiple services including AWS Polly, OpenAI, and generic HTTP proxying. Features residential proxy support, rate limiting, authentication, and comprehensive logging.
+A modular, extensible proxy server with advanced bot detection bypass, secure credential management, and built-in support for residential proxies. Features a plugin architecture for easy service integration.
 
-## 🚀 Features
+## 🚀 Core Features
 
-- **Modular Architecture**: Easy to extend with new service modules
-- **Residential Proxy Support**: Built-in proxy routing for enhanced privacy
-- **Rate Limiting**: Configurable rate limits per service
-- **Authentication**: API key-based security
-- **Comprehensive Logging**: Winston-based logging with multiple levels
-- **Health Monitoring**: Built-in health checks and service discovery
-- **Docker Support**: Ready for containerized deployment
+- **🎭 Browser Automation**: Playwright-powered scraping with stealth mode
+- **🌐 HTTP Proxy**: Generic proxying with residential proxy support  
+- **🔒 Security-First**: SSRF protection, input validation, encrypted credentials
+- **📦 Modular Architecture**: Easy to extend with custom service modules
+- **⚡ Rate Limiting**: Configurable limits per service
+- **🔑 Authentication**: API key-based security
+- **📊 Monitoring**: Health checks and comprehensive logging
+- **🐳 Docker Ready**: Containerized deployment support
 
-## 📁 Project Structure
+## 🛠️ Quick Start
 
-```
-universal-proxy/
-├── Dockerfile
-├── package.json
-├── server.js
-├── docker-compose.yml
-├── .env.example
-├── config/
-│   └── proxy.js
-├── modules/
-│   ├── aws-polly.js
+### Installation
 
-│   ├── openai.js
-│   └── generic-http.js
-├── middleware/
-│   ├── auth.js
-│   ├── rate-limit.js
-│   └── proxy-routing.js
-└── utils/
-    ├── logger.js
-    └── response-handler.js
-```
-
-## 🛠️ Installation
-
-### Local Development
-
-1. Clone the repository:
 ```bash
 git clone <repository-url>
 cd universal-proxy
-```
-
-2. Install dependencies:
-```bash
 npm install
 ```
 
-3. Configure environment variables:
+### Configuration
+
 ```bash
 cp .env.example .env
 # Edit .env with your API keys and configuration
 ```
 
-4. Start the server:
+### Start Server
+
 ```bash
 npm start
 # or for development with auto-reload:
 npm run dev
 ```
 
-### Docker Deployment
+The server runs on `http://localhost:3001` by default.
 
-1. Build and run with Docker Compose:
-```bash
-docker-compose up -d
-```
-
-2. Or build manually:
-```bash
-docker build -t universal-proxy .
-docker run -p 3001:3001 --env-file .env universal-proxy
-```
-
-## ⚙️ Configuration
-
-### Environment Variables
-
-Create a `.env` file based on `.env.example`:
-
-```bash
-# Server Configuration
-PORT=3001
-NODE_ENV=production
-LOG_LEVEL=info
-
-# CORS Origins (comma-separated)
-ALLOWED_ORIGINS=https://claude.ai,http://localhost:3000,https://yourdomain.com
-
-# API Keys (optional - comma-separated for multiple keys)
-API_KEYS=your-secret-api-key,another-api-key
-
-# AWS Credentials
-AWS_ACCESS_KEY_ID=your_access_key_here
-AWS_SECRET_ACCESS_KEY=your_secret_key_here
-AWS_REGION=us-east-1
-
-# OpenAI (if using OpenAI module)
-OPENAI_API_KEY=your_openai_key_here
-
-# Residential Proxy Configuration
-PROXY_RESIDENTIAL_HOST=your-residential-proxy-host.com
-PROXY_RESIDENTIAL_PORT=10000
-PROXY_RESIDENTIAL_USERNAME=your-residential-username
-PROXY_RESIDENTIAL_PASSWORD=your-residential-password
-PROXY_RESIDENTIAL_PROTOCOL=http
-
-# Datacenter Proxy Configuration (optional)
-PROXY_DATACENTER_HOST=your-datacenter-proxy-host.com
-PROXY_DATACENTER_PORT=8080
-PROXY_DATACENTER_USERNAME=your-datacenter-username
-PROXY_DATACENTER_PASSWORD=your-datacenter-password
-PROXY_DATACENTER_PROTOCOL=http
-
-# Proxy Rotation Settings
-PROXY_ROTATION_ENABLED=true
-PROXY_ROTATION_STRATEGY=round-robin
-```
-
-### Proxy Configuration
-
-Configure your proxy providers using environment variables in your `.env` file:
-
-```bash
-# Residential Proxy Configuration
-PROXY_RESIDENTIAL_HOST=your-residential-proxy-host.com
-PROXY_RESIDENTIAL_PORT=10000
-PROXY_RESIDENTIAL_USERNAME=your-residential-username
-PROXY_RESIDENTIAL_PASSWORD=your-residential-password
-PROXY_RESIDENTIAL_PROTOCOL=http
-
-# Datacenter Proxy Configuration (optional)
-PROXY_DATACENTER_HOST=your-datacenter-proxy-host.com
-PROXY_DATACENTER_PORT=8080
-PROXY_DATACENTER_USERNAME=your-datacenter-username
-PROXY_DATACENTER_PASSWORD=your-datacenter-password
-PROXY_DATACENTER_PROTOCOL=http
-```
-
-The [`config/proxy.js`](config/proxy.js:1) file automatically loads these environment variables.
-
-## 📖 Usage Examples
-
-### Health Check
-
-Check if the server is running and view available modules:
-
-```bash
-curl http://localhost:3001/health
-```
-
-Response:
-```json
-{
-  "status": "healthy",
-  "timestamp": "2024-01-01T12:00:00.000Z",
-  "service": "Universal Proxy",
-  "modules": ["aws-polly", "openai", "generic-http"],
-  "uptime": 123.45
-}
-```
-
-### List Available Services
-
-Get information about all loaded service modules:
-
-```bash
-curl http://localhost:3001/api/services
-```
-
-### AWS Polly Text-to-Speech
-
-Convert text to speech using AWS Polly:
-
-```bash
-curl -X POST http://localhost:3001/api/aws-polly/tts \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: your-api-key" \
-  -d '{
-    "text": "Hello world, this is a test of AWS Polly text-to-speech",
-    "voiceId": "Joanna",
-    "engine": "neural"
-  }' \
-  --output speech.mp3
-```
-
-**Supported Voices:** Joanna, Matthew, Ivy, Justin, Kendra, Kimberly, Salli, Joey, Amy, Brian, Emma
-
-#### List Available Voices
-
-```bash
-curl http://localhost:3001/api/aws-polly/voices \
-  -H "x-api-key: your-api-key"
-```
-
-### OpenAI API Proxy
-
-#### Chat Completions
-
-```bash
-curl -X POST http://localhost:3001/api/openai/chat \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: your-api-key" \
-  -d '{
-    "model": "gpt-3.5-turbo",
-    "messages": [
-      {"role": "user", "content": "Hello, how are you?"}
-    ],
-    "max_tokens": 100
-  }'
-```
-
-#### Text Completions
-
-```bash
-curl -X POST http://localhost:3001/api/openai/completions \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: your-api-key" \
-  -d '{
-    "model": "text-davinci-003",
-    "prompt": "Once upon a time",
-    "max_tokens": 50
-  }'
-```
-
-#### Embeddings
-
-```bash
-curl -X POST http://localhost:3001/api/openai/embeddings \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: your-api-key" \
-  -d '{
-    "model": "text-embedding-ada-002",
-    "input": "Hello world"
-  }'
-```
+## 🌐 Core Functionality
 
 ### Generic HTTP Proxy
 
-Proxy any HTTP request through the server:
-
-#### Simple GET Request
+Route any HTTP request through the proxy with optional residential proxy support:
 
 ```bash
+# Simple proxy request
 curl -X GET http://localhost:3001/proxy/anything \
-  -H "x-target-url: https://api.github.com/users/octocat" \
-  -H "x-api-key: your-api-key"
-```
+  -H "x-target-url: https://api.github.com/users/octocat"
 
-#### POST Request with Data
-
-```bash
-curl -X POST http://localhost:3001/proxy/anything \
-  -H "x-target-url: https://httpbin.org/post" \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: your-api-key" \
-  -d '{"message": "Hello World"}'
-```
-
-#### Using Residential Proxy
-
-Route requests through a residential proxy for enhanced privacy:
-
-```bash
+# Using residential proxy for enhanced privacy
 curl -X GET http://localhost:3001/proxy/anything \
   -H "x-target-url: https://api.example.com/data" \
   -H "x-use-proxy: true" \
-  -H "x-proxy-type: residential" \
-  -H "x-api-key: your-api-key"
+  -H "x-proxy-type: residential"
 ```
 
-**⚠️ Security Note:** The proxy blocks requests to private networks, localhost, and metadata services to prevent SSRF attacks.
+**Security**: Automatically blocks requests to private networks, localhost, and metadata services to prevent SSRF attacks.
 
-#### Proxy with Custom Headers
+### Playwright Browser Automation
 
-```bash
-curl -X POST http://localhost:3001/proxy/anything \
-  -H "x-target-url: https://api.example.com/endpoint" \
-  -H "x-use-proxy: true" \
-  -H "Authorization: Bearer target-api-token" \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: your-api-key" \
-  -d '{
-    "query": "search term",
-    "limit": 10
-  }'
-```
-
-### Important API Changes
-
-⚠️ **Security Updates Made:**
-
-1. **API Authentication**: API keys are now **only** accepted via `x-api-key` header (not query parameters)
-2. **AWS Polly Voice Validation**: Only whitelisted voices are accepted (see supported list above)
-3. **URL Restrictions**: Generic proxy blocks private networks, localhost, and metadata services
-4. **Request Limits**: 10MB maximum request size, 15-second timeouts
-5. **Input Validation**: All endpoints now have strict input validation
-
-### Valid Voice IDs for AWS Polly
-
-Only these voice IDs are accepted for security:
-- Joanna, Matthew, Ivy, Justin, Kendra, Kimberly, Salli, Joey, Amy, Brian, Emma
-
-### Playwright Browser Scraping 🎭
-
-**NEW!** Browser-based scraping to bypass bot detection with a single unified endpoint:
-
-#### Get HTML Content (Default)
+Advanced browser-based scraping with bot detection bypass:
 
 ```bash
-curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: your-api-key" \
-  -d '{
-    "url": "https://example.com",
-    "browser": "chromium",
-    "stealth": true,
-    "waitFor": "networkidle"
-  }'
-```
-
-**Quick HTML Test:**
-```bash
+# Get HTML content
 curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
   -H "Content-Type: application/json" \
   -d '{"url": "https://example.com", "stealth": true}'
-```
 
-#### Take Screenshots
-
-```bash
-curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: your-api-key" \
-  -d '{
-    "url": "https://example.com",
-    "output": "screenshot",
-    "browser": "webkit",
-    "viewport": {"width": 1920, "height": 1080},
-    "fullPage": true,
-    "format": "png"
-  }' \
-  --output screenshot.png
-```
-
-**Quick Screenshot Test:**
-```bash
+# Take screenshot
 curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
   -H "Content-Type: application/json" \
   -d '{"url": "https://example.com", "output": "screenshot", "fullPage": true}' \
   --output screenshot.png
-```
 
-#### Generate PDFs
-
-```bash
-curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: your-api-key" \
-  -d '{
-    "url": "https://example.com",
-    "output": "pdf",
-    "pdfFormat": "A4",
-    "landscape": false,
-    "printBackground": true
-  }' \
-  --output document.pdf
-```
-
-**Quick PDF Test:**
-```bash
+# Generate PDF
 curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
   -H "Content-Type: application/json" \
   -d '{"url": "https://example.com", "output": "pdf"}' \
   --output document.pdf
-```
 
-#### Advanced Scraping with Selectors
-
-```bash
+# Extract cookies for n8n automation
 curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
   -H "Content-Type: application/json" \
-  -H "x-api-key: your-api-key" \
-  -d '{
-    "url": "https://example.com",
-    "browser": "firefox",
-    "selector": ".main-content",
-    "javascript": true,
-    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-    "headers": {
-      "Accept-Language": "en-US,en;q=0.9"
-    }
-  }'
+  -d '{"url": "https://secure-site.com", "output": "cookies", "autoLogin": true}'
 ```
 
-#### Automatic Login for Protected Content
+**Stealth Features**: Modern user agents, WebDriver property removal, plugin mocking, multiple browser engines, and automatic login with encrypted credential storage.
 
-**NEW!** Secure credential storage for automatic login:
+## 📦 Module System
 
-```bash
-# Scrape protected content - login happens automatically
-curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: your-api-key" \
-  -d '{
-    "url": "https://secure-site.com/dashboard",
-    "autoLogin": true,
-    "stealth": true
-  }'
-```
+The Universal Proxy Server uses a modular architecture that makes it easy to add new service integrations.
 
-**How it works:**
-1. **Secure Storage**: Credentials are encrypted and stored server-side by domain
-2. **Auto-Detection**: System detects if login is needed for the target domain
-3. **Smart Login**: Automatically logs in before scraping protected content
-4. **No Credentials in Requests**: Login details never appear in API calls
-5. **Stealth Mode**: Login process uses same bot-detection bypass features
+### Creating a Module
 
-#### Extract Cookies for API Automation
-
-**NEW!** Get authenticated cookies for use in n8n or other API tools:
-
-```bash
-# Get cookies as API-ready header string
-curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
-  -H "Content-Type: application/json" \
-  -H "x-api-key: your-api-key" \
-  -d '{
-    "url": "https://secure-site.com/dashboard",
-    "output": "cookies",
-    "cookieFormat": "header",
-    "autoLogin": true
-  }'
-```
-
-**Response:**
-```json
-{
-  "success": true,
-  "data": {
-    "url": "https://secure-site.com/dashboard",
-    "cookieHeader": "session_id=abc123; auth_token=xyz789; user_pref=settings",
-    "cookieCount": 3,
-    "domains": ["secure-site.com"],
-    "expires": 1735689600,
-    "timestamp": "2025-07-03T02:05:00.000Z"
-  }
-}
-```
-
-**Use in n8n HTTP Request:**
-- **Headers**: `Cookie: session_id=abc123; auth_token=xyz789; user_pref=settings`
-- **Perfect for API automation** after login
-
-**Security Features:**
-- 🔐 **AES-256-GCM Encryption** for stored credentials
-- 🏠 **Domain-Based Storage** - credentials tied to specific domains
-- 🚫 **No API Exposure** - credentials never sent in requests
-- 🔒 **Environment-Based Keys** - encryption keys from env variables
-- 🛡️ **Production Safeguards** - credential management disabled in production API
-- 🍪 **Cookie Extraction** - get authenticated sessions for API reuse
-
-#### Stealth Features for Bot Detection Bypass
-
-The Playwright module includes advanced stealth features:
-- **Custom User Agents**: Mimics real browsers
-- **WebDriver Property Removal**: Hides automation traces
-- **Plugin Mocking**: Simulates real browser environment
-- **Multiple Browser Engines**: Chromium, Firefox, WebKit
-- **Proxy Support**: Works with residential proxies
-- **JavaScript Execution**: Full page rendering
-
-#### Playwright Parameters
-
-| Parameter | Type | Default | Description |
-|-----------|------|---------|-------------|
-| `url` | string | required | Target URL to scrape |
-| `output` | string | `html` | Output type: `html`, `screenshot`, `pdf`, `cookies` |
-| `browser` | string | `chromium` | Browser engine: `chromium`, `firefox`, `webkit` |
-| `waitFor` | string | `networkidle` | Wait condition: `load`, `networkidle`, `domcontentloaded` |
-| `timeout` | number | `30000` | Maximum timeout in milliseconds |
-| `selector` | string | `null` | CSS selector to extract specific content |
-| `javascript` | boolean | `false` | Enable JavaScript execution |
-| `userAgent` | string | `null` | Custom user agent string |
-| `viewport` | object | `{width:1920, height:1080}` | Browser viewport size |
-| `headers` | object | `{}` | Additional HTTP headers |
-| `stealth` | boolean | `true` | Enable bot detection bypass |
-| `autoLogin` | boolean | `true` | Automatically login if credentials are stored |
-| `cookieFormat` | string | `header` | Cookies: `header` (API string) or `json` (detailed) |
-| `fullPage` | boolean | `false` | Screenshot: capture full page |
-| `format` | string | `png` | Screenshot: `png` or `jpeg` |
-| `quality` | number | `90` | Screenshot: JPEG quality (1-100) |
-| `pdfFormat` | string | `A4` | PDF: page format |
-| `landscape` | boolean | `false` | PDF: landscape orientation |
-| `printBackground` | boolean | `true` | PDF: include background graphics |
-| `margin` | object | `{top:'1cm'...}` | PDF: page margins |
-
-### Blocked URLs (All Proxy Methods)
-
-For security, these URLs are automatically blocked:
-- `http://localhost/*` or `https://localhost/*`
-- `http://127.0.0.1/*` or any localhost variation
-- `http://10.*.*.*` (private network)
-- `http://192.168.*.*` (private network)
-- `http://172.16-31.*.*` (private network)
-- `http://169.254.169.254/*` (AWS metadata)
-- Any URL containing: `internal`, `local`, `corp`, `intranet`, `private`
-
-## 🔧 Advanced Usage
-
-### Custom Headers
-
-The proxy supports various custom headers for enhanced functionality:
-
-- `x-api-key`: Your API key for authentication
-- `x-target-url`: Target URL for generic proxy requests
-- `x-use-proxy`: Set to `true` to route through residential proxy
-- `x-proxy-type`: Specify proxy type (`residential`, `datacenter`)
-
-### Rate Limiting
-
-Different endpoints have different rate limits:
-
-- **Playwright Scraping**: 20 requests per 15 minutes (very resource intensive)
-- **AWS Polly TTS**: 50 requests per 15 minutes
-- **Generic Proxy**: 200 requests per 15 minutes
-- **Other endpoints**: 1000 requests per 15 minutes
-
-### Error Handling
-
-All responses follow a consistent format:
-
-**Success Response:**
-```json
-{
-  "success": true,
-  "data": { ... },
-  "timestamp": "2024-01-01T12:00:00.000Z"
-}
-```
-
-**Error Response:**
-```json
-{
-  "success": false,
-  "error": "Error message",
-  "timestamp": "2024-01-01T12:00:00.000Z"
-}
-```
-
-## 🔌 Adding New Modules
-
-To add a new service module:
-
-1. Create a new file in the [`modules/`](modules/) directory
-2. Follow this template:
+Create a new file in the `modules/` directory with this template:
 
 ```javascript
-const logger = require('../utils/logger');
-
-const myServiceModule = {
+// modules/your-service.js
+const yourServiceModule = {
   description: 'Description of your service',
   endpoints: ['endpoint1', 'endpoint2'],
 
@@ -572,6 +108,8 @@ const myServiceModule = {
     switch (endpoint) {
       case 'endpoint1':
         return await this.handleEndpoint1(req, res);
+      case 'endpoint2':
+        return await this.handleEndpoint2(req, res);
       default:
         throw new Error(`Unknown endpoint: ${endpoint}`);
     }
@@ -580,114 +118,243 @@ const myServiceModule = {
   async handleEndpoint1(req, res) {
     // Your implementation here
     return { message: 'Success' };
+  },
+
+  async handleEndpoint2(req, res) {
+    // Your implementation here
+    return { data: 'Your data' };
   }
 };
 
-module.exports = myServiceModule;
+module.exports = yourServiceModule;
 ```
 
-3. The module will be automatically loaded on server start
+The module will automatically be loaded and available at `/api/your-service/endpoint1` and `/api/your-service/endpoint2`.
 
-## 📊 Monitoring
+### Example Module: AWS Polly
 
-### Logs
-
-Logs are written to:
-- `combined.log`: All log levels
-- `error.log`: Error level only
-- Console: Formatted output with colors
-
-### Health Checks
-
-The [`/health`](server.js:47) endpoint provides server status and module information.
-
-## 🐳 Docker
-
-The included [`Dockerfile`](Dockerfile:1) and [`docker-compose.yml`](docker-compose.yml:1) make deployment simple:
+Text-to-speech service using AWS Polly (requires AWS credentials):
 
 ```bash
-# Build and run
-docker-compose up -d
+# Convert text to speech
+curl -X POST http://localhost:3001/api/aws-polly/tts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Hello world, this is a test of AWS Polly text-to-speech",
+    "voiceId": "Joanna",
+    "engine": "neural"
+  }' \
+  --output speech.mp3
 
-# View logs
-docker-compose logs -f
-
-# Stop
-docker-compose down
+# List available voices
+curl http://localhost:3001/api/aws-polly/voices
 ```
 
-## 🔒 Security
+**Supported Voices**: Joanna, Matthew, Ivy, Justin, Kendra, Kimberly, Salli, Joey, Amy, Brian, Emma
 
-### Security Features Implemented
+### Example Module: OpenAI
 
-- **SSRF Protection**: Blocks requests to private/internal networks and dangerous protocols
-- **Input Validation**: Comprehensive validation and sanitization of all inputs
-- **CORS Protection**: Configurable allowed origins with strict validation
-- **Enhanced Security Headers**: CSP, HSTS, and other security headers via Helmet
+Proxy for OpenAI API services (requires OpenAI API key):
+
+```bash
+# Chat completion
+curl -X POST http://localhost:3001/api/openai/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-3.5-turbo",
+    "messages": [{"role": "user", "content": "Hello!"}],
+    "max_tokens": 100
+  }'
+
+# Text completion
+curl -X POST http://localhost:3001/api/openai/completions \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "text-davinci-003",
+    "prompt": "Once upon a time",
+    "max_tokens": 50
+  }'
+
+# Embeddings
+curl -X POST http://localhost:3001/api/openai/embeddings \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "text-embedding-ada-002",
+    "input": "Hello world"
+  }'
+```
+
+### Example Module: Google Imagen
+
+AI-powered image generation using Google's Imagen (requires Google API key):
+
+```bash
+# Generate image from text prompt
+curl -X POST http://localhost:3001/api/google-imagen/generate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "A serene mountain landscape with a crystal clear lake",
+    "size": "1024x1024",
+    "numberOfImages": 1,
+    "quality": "hd",
+    "style": "natural"
+  }'
+
+# List available models
+curl http://localhost:3001/api/google-imagen/models
+```
+
+**Supported Features**: Multiple image sizes, quality settings, style control, and content filtering
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+Configure the server using environment variables in your `.env` file:
+
+```bash
+# Server Configuration
+PORT=3001
+NODE_ENV=production
+LOG_LEVEL=info
+
+# CORS Origins (comma-separated)
+ALLOWED_ORIGINS=https://claude.ai,http://localhost:3000
+
+# API Keys (optional - comma-separated for multiple keys)
+API_KEYS=your-secret-api-key
+
+# AWS Credentials (for aws-polly module)
+AWS_ACCESS_KEY_ID=your_access_key_here
+AWS_SECRET_ACCESS_KEY=your_secret_key_here
+AWS_REGION=us-east-1
+
+# OpenAI (for openai module)
+OPENAI_API_KEY=your_openai_key_here
+
+# Google AI (for google-imagen module)
+GOOGLE_API_KEY=your_google_api_key_here
+
+# Residential Proxy Configuration
+PROXY_RESIDENTIAL_HOST=your-residential-proxy-host.com
+PROXY_RESIDENTIAL_PORT=10000
+PROXY_RESIDENTIAL_USERNAME=your-residential-username
+PROXY_RESIDENTIAL_PASSWORD=your-residential-password
+
+# Datacenter Proxy Configuration (optional)
+PROXY_DATACENTER_HOST=your-datacenter-proxy-host.com
+PROXY_DATACENTER_PORT=8080
+PROXY_DATACENTER_USERNAME=your-datacenter-username
+PROXY_DATACENTER_PASSWORD=your-datacenter-password
+
+# Credentials Encryption (for secure login storage)
+CREDENTIALS_ENCRYPTION_KEY=your-32-character-encryption-key-here
+```
+
+### Rate Limits
+
+Different endpoints have different rate limits:
+
+- **Playwright Scraping**: 20 requests per 15 minutes (resource intensive)
+- **AWS Polly TTS**: 50 requests per 15 minutes
+- **Generic Proxy**: 200 requests per 15 minutes  
+- **Other endpoints**: 1000 requests per 15 minutes
+
+### Authentication
+
+API keys are optional but recommended for production:
+
+```bash
+# All requests (when API keys are configured)
+curl -H "x-api-key: your-api-key" http://localhost:3001/api/services
+
+# Public endpoints (no key required)
+curl http://localhost:3001/health
+curl http://localhost:3001/api/services
+```
+
+## 🔒 Security Features
+
+### Built-in Protection
+
+- **SSRF Prevention**: Blocks requests to private networks and dangerous URLs
+- **Input Validation**: Comprehensive sanitization of all inputs
 - **Rate Limiting**: Prevents abuse and DoS attacks
-- **API Key Authentication**: Header-based authentication (not query params)
-- **Error Message Sanitization**: Prevents information disclosure in production
-- **Request Size Limits**: 10MB limits to prevent resource exhaustion
-- **Timeout Protection**: Prevents hanging requests and resource exhaustion
-- **Content Filtering**: Basic filtering for malicious content
-- **Redirect Limits**: Prevents redirect loops and attacks
-- **Docker Security**: Non-root user, minimal attack surface
+- **Secure Headers**: CSP, HSTS, and other security headers
+- **Encrypted Storage**: AES-256-GCM for sensitive credentials
+- **Error Sanitization**: Prevents information disclosure
 
-### Security Best Practices
-
-**⚠️ Important Security Notes:**
-
-1. **API Keys**: Always use the `x-api-key` header, never query parameters
-2. **HTTPS**: Always use HTTPS in production
-3. **Environment Variables**: Never commit `.env` files to version control
-4. **Regular Updates**: Keep dependencies updated
-5. **Monitoring**: Monitor logs for suspicious activity
-6. **Network Security**: Use firewalls and VPNs for additional protection
-
-### Blocked URLs (SSRF Protection)
+### Blocked URLs
 
 The proxy automatically blocks requests to:
 - Private IP ranges (10.x.x.x, 192.168.x.x, 172.16-31.x.x)
 - Localhost and loopback addresses
 - Metadata services (169.254.169.254, metadata.google.internal)
 - Internal domains (.internal, .local, .corp, etc.)
-- Non-HTTP/HTTPS protocols
 
-## 🚨 Troubleshooting
+## 🐳 Docker Deployment
+
+### Using Docker Compose
+
+```bash
+docker-compose up -d
+```
+
+### Manual Docker Build
+
+```bash
+docker build -t universal-proxy .
+docker run -p 3001:3001 --env-file .env universal-proxy
+```
+
+## 📊 Monitoring
+
+### Health Check
+
+```bash
+curl http://localhost:3001/health
+```
+
+Response includes server status, loaded modules, and uptime.
+
+### Service Discovery
+
+```bash
+curl http://localhost:3001/api/services
+```
+
+Lists all available modules and their endpoints.
+
+## 🔧 Troubleshooting
 
 ### Common Issues
 
-**Module Loading Errors:**
-- Check file permissions in [`modules/`](modules/) directory
-- Verify module syntax and exports
+**Port already in use**: Change `PORT=3002` in `.env`
 
-**Proxy Connection Failures:**
-- Verify proxy credentials in [`config/proxy.js`](config/proxy.js:1)
-- Check network connectivity
+**Module loading errors**: Check that your module exports the correct structure and run `npm install`
 
-**Rate Limit Exceeded:**
-- Reduce request frequency
-- Consider multiple API keys for higher limits
+**CORS errors**: Add your domain to `ALLOWED_ORIGINS` in `.env`
 
-**AWS/OpenAI Authentication:**
-- Verify API keys in `.env` file
-- Check key permissions and quotas
+**Rate limiting**: Public endpoints (`/health`, `/api/services`) are exempt from rate limits
+
+**Proxy blocks legitimate URLs**: The SSRF protection is intentionally strict. Use the generic proxy for external URLs only.
+
+### Support
+
+- **Issues**: Create an issue on GitHub
+- **Documentation**: Check this README and code comments
+- **Logs**: Check console output for detailed error messages
 
 ## 📝 License
 
-MIT License - see LICENSE file for details.
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
-3. Add your module or improvement
+3. Add your module or improvements
 4. Test thoroughly
 5. Submit a pull request
 
-## 📞 Support
-
-For issues and questions:
-- Check the logs in `combined.log` and `error.log`
-- Review the [`/health`](server.js:47) endpoint output
-- Ensure all environment variables are properly configured
+The modular architecture makes it easy to contribute new service integrations!

@@ -69,6 +69,37 @@ typings/
 .env.test.local
 .env.production.local
 
+# Playwright browsers and cache
+.playwright/
+playwright-report/
+test-results/
+
+# Application logs
+logs/
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
