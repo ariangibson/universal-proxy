@@ -1,14 +1,14 @@
-const AWS = require('aws-sdk');
+const { PollyClient, SynthesizeSpeechCommand, DescribeVoicesCommand } = require('@aws-sdk/client-polly');
 const logger = require('../utils/logger');
 
-// Configure AWS
-AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION || 'us-east-1'
+// Configure AWS Polly client
+const pollyClient = new PollyClient({
+  region: process.env.AWS_REGION || 'us-east-1',
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
 });
-
-const polly = new AWS.Polly();
 
 const awsPollyModule = {
   description: 'AWS Polly Text-to-Speech service',
@@ -63,31 +63,39 @@ const awsPollyModule = {
       throw new Error('Text contains prohibited content');
     }
 
-    const params = {
+    const command = new SynthesizeSpeechCommand({
       Text: text,
       OutputFormat: 'mp3',
       VoiceId: voiceId,
       Engine: engine,
       SampleRate: '22050'
-    };
+    });
 
     logger.info(`TTS Request: ${voiceId} - ${text.substring(0, 50)}...`);
 
-    const result = await polly.synthesizeSpeech(params).promise();
+    const result = await pollyClient.send(command);
+
+    // Convert stream to buffer for response
+    const chunks = [];
+    for await (const chunk of result.AudioStream) {
+      chunks.push(chunk);
+    }
+    const audioBuffer = Buffer.concat(chunks);
 
     // Set headers and stream response
     res.set({
       'Content-Type': 'audio/mpeg',
-      'Content-Length': result.AudioStream.length,
+      'Content-Length': audioBuffer.length,
       'Cache-Control': 'public, max-age=3600'
     });
 
-    res.send(result.AudioStream);
+    res.send(audioBuffer);
     return null; // Response already sent
   },
 
   async listVoices() {
-    const result = await polly.describeVoices({}).promise();
+    const command = new DescribeVoicesCommand({});
+    const result = await pollyClient.send(command);
     
     const voices = result.Voices
       .filter(voice => voice.SupportedEngines.includes('neural'))

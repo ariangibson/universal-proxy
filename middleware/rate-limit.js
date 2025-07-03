@@ -17,6 +17,14 @@ const proxyRateLimit = rateLimit({
   legacyHeaders: false,
 });
 
+const playwrightRateLimit = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // Very limited due to resource usage
+  message: { error: 'Browser scraping rate limit exceeded' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 const defaultRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 1000,
@@ -32,7 +40,10 @@ const rateLimitMiddleware = (req, res, next) => {
     return next();
   }
 
-  if (req.path.startsWith('/api/aws-polly')) {
+  if (req.path.startsWith('/api/playwright-scraper')) {
+    // Browser scraping is very resource intensive
+    return playwrightRateLimit(req, res, next);
+  } else if (req.path.startsWith('/api/aws-polly')) {
     // TTS is expensive, limit more aggressively
     return ttsRateLimit(req, res, next);
   } else if (req.path.startsWith('/proxy')) {

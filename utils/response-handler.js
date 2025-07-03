@@ -31,32 +31,11 @@ const responseHandler = {
 
   // SECURITY: Sanitize error messages to prevent information disclosure
   sanitizeErrorMessage: (message, status) => {
-    // In production, provide generic messages for certain error types
-    if (process.env.NODE_ENV === 'production') {
-      if (status >= 500) {
-        return 'Internal server error';
-      }
-      
-      // Remove potentially sensitive information from error messages
-      const sensitivePatterns = [
-        /ECONNREFUSED.*:\d+/gi,
-        /getaddrinfo ENOTFOUND .*/gi,
-        /connect ETIMEDOUT .*/gi,
-        /socket hang up/gi,
-        /certificate/gi,
-        /ssl/gi,
-        /path.*not found/gi
-      ];
-      
-      let sanitized = message;
-      sensitivePatterns.forEach(pattern => {
-        sanitized = sanitized.replace(pattern, 'Connection error');
-      });
-      
-      return sanitized;
+    // In production, hide internal errors
+    if (process.env.NODE_ENV === 'production' && status >= 500) {
+      return 'Internal server error';
     }
-    
-    return message; // In development, show full errors
+    return message;
   },
 
   stream: (res, stream, contentType = 'application/octet-stream') => {

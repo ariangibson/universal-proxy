@@ -307,7 +307,201 @@ curl -X POST http://localhost:3001/proxy/anything \
 Only these voice IDs are accepted for security:
 - Joanna, Matthew, Ivy, Justin, Kendra, Kimberly, Salli, Joey, Amy, Brian, Emma
 
-### Blocked URLs (Generic Proxy)
+### Playwright Browser Scraping 🎭
+
+**NEW!** Browser-based scraping to bypass bot detection with a single unified endpoint:
+
+#### Get HTML Content (Default)
+
+```bash
+curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-api-key" \
+  -d '{
+    "url": "https://example.com",
+    "browser": "chromium",
+    "stealth": true,
+    "waitFor": "networkidle"
+  }'
+```
+
+**Quick HTML Test:**
+```bash
+curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com", "stealth": true}'
+```
+
+#### Take Screenshots
+
+```bash
+curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-api-key" \
+  -d '{
+    "url": "https://example.com",
+    "output": "screenshot",
+    "browser": "webkit",
+    "viewport": {"width": 1920, "height": 1080},
+    "fullPage": true,
+    "format": "png"
+  }' \
+  --output screenshot.png
+```
+
+**Quick Screenshot Test:**
+```bash
+curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com", "output": "screenshot", "fullPage": true}' \
+  --output screenshot.png
+```
+
+#### Generate PDFs
+
+```bash
+curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-api-key" \
+  -d '{
+    "url": "https://example.com",
+    "output": "pdf",
+    "pdfFormat": "A4",
+    "landscape": false,
+    "printBackground": true
+  }' \
+  --output document.pdf
+```
+
+**Quick PDF Test:**
+```bash
+curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
+  -H "Content-Type: application/json" \
+  -d '{"url": "https://example.com", "output": "pdf"}' \
+  --output document.pdf
+```
+
+#### Advanced Scraping with Selectors
+
+```bash
+curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-api-key" \
+  -d '{
+    "url": "https://example.com",
+    "browser": "firefox",
+    "selector": ".main-content",
+    "javascript": true,
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    "headers": {
+      "Accept-Language": "en-US,en;q=0.9"
+    }
+  }'
+```
+
+#### Automatic Login for Protected Content
+
+**NEW!** Secure credential storage for automatic login:
+
+```bash
+# Scrape protected content - login happens automatically
+curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-api-key" \
+  -d '{
+    "url": "https://secure-site.com/dashboard",
+    "autoLogin": true,
+    "stealth": true
+  }'
+```
+
+**How it works:**
+1. **Secure Storage**: Credentials are encrypted and stored server-side by domain
+2. **Auto-Detection**: System detects if login is needed for the target domain
+3. **Smart Login**: Automatically logs in before scraping protected content
+4. **No Credentials in Requests**: Login details never appear in API calls
+5. **Stealth Mode**: Login process uses same bot-detection bypass features
+
+#### Extract Cookies for API Automation
+
+**NEW!** Get authenticated cookies for use in n8n or other API tools:
+
+```bash
+# Get cookies as API-ready header string
+curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-api-key" \
+  -d '{
+    "url": "https://secure-site.com/dashboard",
+    "output": "cookies",
+    "cookieFormat": "header",
+    "autoLogin": true
+  }'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "url": "https://secure-site.com/dashboard",
+    "cookieHeader": "session_id=abc123; auth_token=xyz789; user_pref=settings",
+    "cookieCount": 3,
+    "domains": ["secure-site.com"],
+    "expires": 1735689600,
+    "timestamp": "2025-07-03T02:05:00.000Z"
+  }
+}
+```
+
+**Use in n8n HTTP Request:**
+- **Headers**: `Cookie: session_id=abc123; auth_token=xyz789; user_pref=settings`
+- **Perfect for API automation** after login
+
+**Security Features:**
+- 🔐 **AES-256-GCM Encryption** for stored credentials
+- 🏠 **Domain-Based Storage** - credentials tied to specific domains
+- 🚫 **No API Exposure** - credentials never sent in requests
+- 🔒 **Environment-Based Keys** - encryption keys from env variables
+- 🛡️ **Production Safeguards** - credential management disabled in production API
+- 🍪 **Cookie Extraction** - get authenticated sessions for API reuse
+
+#### Stealth Features for Bot Detection Bypass
+
+The Playwright module includes advanced stealth features:
+- **Custom User Agents**: Mimics real browsers
+- **WebDriver Property Removal**: Hides automation traces
+- **Plugin Mocking**: Simulates real browser environment
+- **Multiple Browser Engines**: Chromium, Firefox, WebKit
+- **Proxy Support**: Works with residential proxies
+- **JavaScript Execution**: Full page rendering
+
+#### Playwright Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `url` | string | required | Target URL to scrape |
+| `output` | string | `html` | Output type: `html`, `screenshot`, `pdf`, `cookies` |
+| `browser` | string | `chromium` | Browser engine: `chromium`, `firefox`, `webkit` |
+| `waitFor` | string | `networkidle` | Wait condition: `load`, `networkidle`, `domcontentloaded` |
+| `timeout` | number | `30000` | Maximum timeout in milliseconds |
+| `selector` | string | `null` | CSS selector to extract specific content |
+| `javascript` | boolean | `false` | Enable JavaScript execution |
+| `userAgent` | string | `null` | Custom user agent string |
+| `viewport` | object | `{width:1920, height:1080}` | Browser viewport size |
+| `headers` | object | `{}` | Additional HTTP headers |
+| `stealth` | boolean | `true` | Enable bot detection bypass |
+| `autoLogin` | boolean | `true` | Automatically login if credentials are stored |
+| `cookieFormat` | string | `header` | Cookies: `header` (API string) or `json` (detailed) |
+| `fullPage` | boolean | `false` | Screenshot: capture full page |
+| `format` | string | `png` | Screenshot: `png` or `jpeg` |
+| `quality` | number | `90` | Screenshot: JPEG quality (1-100) |
+| `pdfFormat` | string | `A4` | PDF: page format |
+| `landscape` | boolean | `false` | PDF: landscape orientation |
+| `printBackground` | boolean | `true` | PDF: include background graphics |
+| `margin` | object | `{top:'1cm'...}` | PDF: page margins |
+
+### Blocked URLs (All Proxy Methods)
 
 For security, these URLs are automatically blocked:
 - `http://localhost/*` or `https://localhost/*`
@@ -333,8 +527,9 @@ The proxy supports various custom headers for enhanced functionality:
 
 Different endpoints have different rate limits:
 
+- **Playwright Scraping**: 20 requests per 15 minutes (very resource intensive)
 - **AWS Polly TTS**: 50 requests per 15 minutes
-- **Generic Proxy**: 200 requests per 15 minutes  
+- **Generic Proxy**: 200 requests per 15 minutes
 - **Other endpoints**: 1000 requests per 15 minutes
 
 ### Error Handling
