@@ -1,9 +1,10 @@
 # Universal Proxy Server
 
-A modular, extensible proxy server with advanced bot detection bypass, secure credential management, and built-in support for residential proxies. Features a plugin architecture for easy service integration.
+A modular, extensible proxy server with AI/LLM integration, advanced bot detection bypass, and secure credential management. Features unified APIs for OpenAI, Google Gemini, xAI Grok, and browser automation.
 
 ## 🚀 Core Features
 
+- **🤖 AI & LLM Integration**: OpenAI GPT, Google Gemini, xAI Grok with live search
 - **🎭 Browser Automation**: Playwright-powered scraping with stealth mode
 - **🌐 HTTP Proxy**: Generic proxying with residential proxy support  
 - **🔒 Security-First**: SSRF protection, input validation, encrypted credentials
@@ -66,24 +67,24 @@ Advanced browser-based scraping with bot detection bypass:
 
 ```bash
 # Get HTML content
-curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
+curl -X POST http://localhost:3001/api/playwright/scrape \
   -H "Content-Type: application/json" \
   -d '{"url": "https://example.com", "stealth": true}'
 
 # Take screenshot
-curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
+curl -X POST http://localhost:3001/api/playwright/scrape \
   -H "Content-Type: application/json" \
   -d '{"url": "https://example.com", "output": "screenshot", "fullPage": true}' \
   --output screenshot.png
 
 # Generate PDF
-curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
+curl -X POST http://localhost:3001/api/playwright/scrape \
   -H "Content-Type: application/json" \
   -d '{"url": "https://example.com", "output": "pdf"}' \
   --output document.pdf
 
 # Extract cookies for n8n automation
-curl -X POST http://localhost:3001/api/playwright-scraper/scrape \
+curl -X POST http://localhost:3001/api/playwright/scrape \
   -H "Content-Type: application/json" \
   -d '{"url": "https://secure-site.com", "output": "cookies", "autoLogin": true}'
 ```
@@ -152,59 +153,141 @@ curl http://localhost:3001/api/aws-polly/voices
 
 **Supported Voices**: Joanna, Matthew, Ivy, Justin, Kendra, Kimberly, Salli, Joey, Amy, Brian, Emma
 
+### Example Module: ElevenLabs
+
+High-quality text-to-speech using ElevenLabs API (requires ElevenLabs API key):
+
+```bash
+# Convert text to speech with premium voices
+curl -X POST http://localhost:3001/api/elevenlabs/tts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Hello world, this is ElevenLabs premium text-to-speech",
+    "voice_id": "21m00Tcm4TlvDq8ikWAM",
+    "model_id": "eleven_multilingual_v2"
+  }' \
+  --output speech.mp3
+
+# Use custom API key for specific request
+curl -X POST http://localhost:3001/api/elevenlabs/tts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "text": "Premium voice synthesis with ElevenLabs",
+    "voice_id": "EXAVITQu4vr4xnSDxMaL",
+    "elevenlabs_api_key": "your-elevenlabs-key"
+  }' \
+  --output premium_speech.mp3
+```
+
+**Features**: Premium voice cloning, multilingual support, emotional speech synthesis
+
+### Example Module: Google Gemini
+
+Advanced AI capabilities using Google's Gemini models (requires Google API key):
+
+```bash
+# Chat completion
+curl -X POST http://localhost:3001/api/google/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [
+      {"role": "user", "content": "Explain quantum computing simply"}
+    ],
+    "model": "gemini-2.0-flash-exp"
+  }'
+
+# Image generation with Imagen 3
+curl -X POST http://localhost:3001/api/google/images \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "A futuristic cityscape with flying cars at sunset",
+    "model": "imagen-3.0-generate-001",
+    "aspectRatio": "1:1"
+  }'
+
+# List available models
+curl http://localhost:3001/api/google/models
+```
+
+**Features**: Latest Gemini 2.0 models, Imagen 3 image generation, function calling support
+
 ### Example Module: OpenAI
 
-Proxy for OpenAI API services (requires OpenAI API key):
+Complete OpenAI API proxy with advanced AI capabilities (requires OpenAI API key):
 
 ```bash
 # Chat completion
 curl -X POST http://localhost:3001/api/openai/chat \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-3.5-turbo",
+    "model": "gpt-4o",
     "messages": [{"role": "user", "content": "Hello!"}],
     "max_tokens": 100
   }'
 
-# Text completion
-curl -X POST http://localhost:3001/api/openai/completions \
+# Image generation with DALL-E 3
+curl -X POST http://localhost:3001/api/openai/images \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "text-davinci-003",
-    "prompt": "Once upon a time",
-    "max_tokens": 50
+    "prompt": "A futuristic city with flying cars at sunset",
+    "model": "dall-e-3",
+    "size": "1024x1024",
+    "quality": "hd",
+    "style": "vivid"
   }'
+
+# List available models
+curl http://localhost:3001/api/openai/models
 
 # Embeddings
 curl -X POST http://localhost:3001/api/openai/embeddings \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "text-embedding-ada-002",
+    "model": "text-embedding-3-large",
     "input": "Hello world"
   }'
 ```
 
-### Example Module: Google Imagen
+**Features**: Latest GPT models, DALL-E 3 image generation, advanced embeddings, function calling
 
-AI-powered image generation using Google's Imagen (requires Google API key):
+### Example Module: xAI (Grok)
+
+Grok AI with live search and real-time information (requires xAI API key):
 
 ```bash
-# Generate image from text prompt
-curl -X POST http://localhost:3001/api/google-imagen/generate \
+# Chat with Grok-3 Mini (efficient model, real-time search available)
+curl -X POST http://localhost:3001/api/xai/chat \
   -H "Content-Type: application/json" \
   -d '{
-    "prompt": "A serene mountain landscape with a crystal clear lake",
-    "size": "1024x1024",
-    "numberOfImages": 1,
-    "quality": "hd",
-    "style": "natural"
+    "model": "grok-3-mini",
+    "messages": [{"role": "user", "content": "What are the latest news about AI developments?"}],
+    "max_tokens": 500
+  }'
+
+# Live search with specific recency filter (works with Grok-3 Beta)
+curl -X POST http://localhost:3001/api/xai/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "grok-3-beta",
+    "messages": [{"role": "user", "content": "What happened in tech today?"}],
+    "enable_live_search": true,
+    "search_recency_filter": "day"
+  }'
+
+# Image generation with Aurora
+curl -X POST http://localhost:3001/api/xai/images \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "A serene mountain landscape at dawn",
+    "model": "grok-2-image-1212"
   }'
 
 # List available models
-curl http://localhost:3001/api/google-imagen/models
+curl http://localhost:3001/api/xai/models
 ```
 
-**Supported Features**: Multiple image sizes, quality settings, style control, and content filtering
+**Features**: Grok-3 Beta with live search, Grok-3 Mini for efficiency, Aurora image generation, real-time information, function calling support  
+**Live Search Filters**: `auto`, `day`, `week`, `month`, `year` for different time ranges
 
 ## ⚙️ Configuration
 
@@ -229,11 +312,17 @@ AWS_ACCESS_KEY_ID=your_access_key_here
 AWS_SECRET_ACCESS_KEY=your_secret_key_here
 AWS_REGION=us-east-1
 
+# ElevenLabs (for elevenlabs module)
+ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
+
 # OpenAI (for openai module)
 OPENAI_API_KEY=your_openai_key_here
 
-# Google AI (for google-imagen module)
+# Google AI (for google module)
 GOOGLE_API_KEY=your_google_api_key_here
+
+# xAI (for xai module with Grok models and live search)
+XAI_API_KEY=your_xai_api_key_here
 
 # Residential Proxy Configuration
 PROXY_RESIDENTIAL_HOST=your-residential-proxy-host.com
@@ -256,7 +345,8 @@ CREDENTIALS_ENCRYPTION_KEY=your-32-character-encryption-key-here
 Different endpoints have different rate limits:
 
 - **Playwright Scraping**: 20 requests per 15 minutes (resource intensive)
-- **AWS Polly TTS**: 50 requests per 15 minutes
+- **AWS Polly & ElevenLabs TTS**: 50 requests per 15 minutes
+- **AI Modules (OpenAI, Google, xAI)**: 100 requests per 15 minutes
 - **Generic Proxy**: 200 requests per 15 minutes  
 - **Other endpoints**: 1000 requests per 15 minutes
 
@@ -333,6 +423,10 @@ Lists all available modules and their endpoints.
 
 **Module loading errors**: Check that your module exports the correct structure and run `npm install`
 
+**AI API errors**: Verify your API keys are correctly set in `.env` (OPENAI_API_KEY, GOOGLE_API_KEY, XAI_API_KEY, ELEVENLABS_API_KEY)
+
+**Live search not working**: Ensure xAI API key is valid and has appropriate permissions for search features
+
 **CORS errors**: Add your domain to `ALLOWED_ORIGINS` in `.env`
 
 **Rate limiting**: Public endpoints (`/health`, `/api/services`) are exempt from rate limits
@@ -354,7 +448,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 1. Fork the repository
 2. Create a feature branch
 3. Add your module or improvements
-4. Test thoroughly
+4. Test thoroughly with all endpoints
 5. Submit a pull request
 
-The modular architecture makes it easy to contribute new service integrations!
+The modular architecture makes it easy to contribute new service integrations! When adding AI modules, follow OpenAI-style conventions for consistency.

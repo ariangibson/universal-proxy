@@ -40,7 +40,7 @@ const rateLimitMiddleware = (req, res, next) => {
     return next();
   }
 
-  if (req.path.startsWith('/api/playwright-scraper')) {
+  if (req.path.startsWith('/api/playwright')) {
     // Browser scraping is very resource intensive
     return playwrightRateLimit(req, res, next);
   } else if (req.path.startsWith('/api/aws-polly')) {

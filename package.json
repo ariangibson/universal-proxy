@@ -20,10 +20,12 @@
     "axios": "^1.6.0",
     "winston": "^3.11.0",
     "@aws-sdk/client-polly": "^3.490.0",
-    "@google/generative-ai": "^0.2.1",
+    "@elevenlabs/elevenlabs-js": "^2.5.0",
+    "@google/generative-ai": "^0.16.0",
     "https-proxy-agent": "^7.0.2",
     "http-proxy-agent": "^7.0.0",
-    "playwright": "^1.40.0"
+    "playwright": "^1.40.0",
+    "openai": "^4.52.7"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
@@ -45,17 +47,16 @@
     "automation",
     "residential-proxy",
     "web-scraping",
-    "cookies",
-    "n8n"
+    "cookies"
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourusername/universal-proxy.git"
+    "url": "git+https://github.com/agibson/universal-proxy.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/universal-proxy/issues"
+    "url": "https://github.com/agibson/universal-proxy/issues"
   },
-  "homepage": "https://github.com/yourusername/universal-proxy#readme",
-  "author": "Your Name",
+  "homepage": "https://github.com/agibson/universal-proxy#readme",
+  "author": "A. Gibson",
   "license": "MIT"
 }

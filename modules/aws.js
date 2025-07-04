@@ -10,8 +10,8 @@ const pollyClient = new PollyClient({
   },
 });
 
-const awsPollyModule = {
-  description: 'AWS Polly Text-to-Speech service',
+const awsModule = {
+  description: 'AWS AI services - Polly text-to-speech and voice synthesis',
   endpoints: ['tts', 'voices'],
 
   async handler(endpoint, req, res) {
@@ -111,4 +111,4 @@ const awsPollyModule = {
   }
 };
 
-module.exports = awsPollyModule;
+module.exports = awsModule;

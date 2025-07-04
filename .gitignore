@@ -86,6 +86,10 @@ pids
 
 # IDE and editor files
 .vscode/
+
+# Vestigial files
+temp_remove.js
+modules/google-imagen.js
 .idea/
 *.swp
 *.swo
