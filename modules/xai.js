@@ -110,11 +110,11 @@ const xaiModule = {
 
     } catch (error) {
       if (error.response) {
-        // xAI API error
+        // xAI API error - set response and throw for consistent error handling
         logger.error(`xAI API error: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
         res.status(error.response.status);
         res.json(error.response.data);
-        return null;
+        throw new Error(`xAI API error: ${error.response.status}`);
       }
       logger.error(`xAI request error: ${error.message}`);
       throw new Error(`xAI request failed: ${error.message}`);
@@ -195,10 +195,11 @@ const xaiModule = {
 
     } catch (error) {
       if (error.response) {
+        // xAI Images API error - set response and throw for consistent error handling
         logger.error(`xAI Images API error: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
         res.status(error.response.status);
         res.json(error.response.data);
-        return null;
+        throw new Error(`xAI Images API error: ${error.response.status}`);
       }
       logger.error(`xAI images request error: ${error.message}`);
       throw new Error(`xAI image generation failed: ${error.message}`);
@@ -254,16 +255,16 @@ const xaiModule = {
         return {
           models: [
             {
-              id: 'grok-3-beta',
-              name: 'Grok 3 Beta',
+              id: 'grok-3',
+              name: 'Grok 3',
               description: 'Latest flagship model with enhanced reasoning and live search capabilities',
               context_window: 131072,
               capabilities: ['text', 'live_search', 'function_calling', 'structured_outputs'],
               owned_by: 'xAI'
             },
             {
-              id: 'grok-3-mini-beta',
-              name: 'Grok 3 Mini Beta',
+              id: 'grok-3-mini',
+              name: 'Grok 3 Mini',
               description: 'Efficient model optimized for speed and reasoning tasks',
               context_window: 131072,
               capabilities: ['text', 'reasoning'],

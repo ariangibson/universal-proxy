@@ -348,8 +348,9 @@ const playwrightModule = {
           page.waitForNavigation({ waitUntil: 'networkidle', timeout: 10000 })
         ]);
 
-        // Additional wait for any post-login processing
-        await page.waitForTimeout(credentials.waitAfterLogin || 3000);
+        // Additional wait for any post-login processing using Promise-based delay
+        const waitTime = credentials.waitAfterLogin || 3000;
+        await new Promise(resolve => setTimeout(resolve, waitTime));
 
         logger.info('Login successful');
         return true;

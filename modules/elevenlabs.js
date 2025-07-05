@@ -1,22 +1,22 @@
 const { ElevenLabsClient } = require("@elevenlabs/elevenlabs-js");
-const { Readable } = require('stream');
+const logger = require('../utils/logger');
 
 // Memoized client for environment-based API key
-const elevenlabs = process.env.ELEVENLABS_API_KEY 
+const elevenlabs = process.env.ELEVENLABS_API_KEY
     ? new ElevenLabsClient({ apiKey: process.env.ELEVENLABS_API_KEY })
     : null;
 
 const elevenLabsModule = {
     description: 'ElevenLabs Text-to-Speech service',
     endpoints: ['tts'],
-    
+
     async handler(endpoint, req, res) {
         if (endpoint !== 'tts') {
             throw new Error(`Unknown endpoint: ${endpoint}`);
         }
         return await this.tts(req, res);
     },
-     async tts(req, res) {
+    async tts(req, res) {
         const { text, voice_id, model_id, elevenlabs_api_key } = req.body;
 
         if (!text || !voice_id) {
