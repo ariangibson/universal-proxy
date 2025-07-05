@@ -348,9 +348,34 @@ const playwrightModule = {
           page.waitForNavigation({ waitUntil: 'networkidle', timeout: 10000 })
         ]);
 
-        // Additional wait for any post-login processing using Promise-based delay
+        // Additional wait for any post-login processing with proper cleanup
         const waitTime = credentials.waitAfterLogin || 3000;
-        await new Promise(resolve => setTimeout(resolve, waitTime));
+        
+        // Create a cancellable timeout that will be cleaned up if page is closed
+        const timeoutPromise = new Promise((resolve, reject) => {
+          const timeoutId = setTimeout(resolve, waitTime);
+          
+          // Clean up timeout if page is closed
+          const cleanup = () => {
+            clearTimeout(timeoutId);
+            reject(new Error('Page closed during post-login wait'));
+          };
+          
+          // Listen for page close event to cancel timeout
+          page.once('close', cleanup);
+          
+          // Clean up listener when timeout completes
+          setTimeout(() => {
+            page.removeListener('close', cleanup);
+          }, waitTime + 100);
+        });
+
+        try {
+          await timeoutPromise;
+        } catch (waitError) {
+          // If page was closed during wait, continue anyway
+          logger.warn(`Post-login wait interrupted: ${waitError.message}`);
+        }
 
         logger.info('Login successful');
         return true;
